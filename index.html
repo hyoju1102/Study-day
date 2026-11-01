@@ -1,0 +1,565 @@
+
+
+<!DOCTYPE html>
+
+<html lang="ko">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<meta name="theme-color" content="#fff0f6">
+
+<title>STUDY DAY</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#fff7fa;color:#55434d;font-family:-apple-system,BlinkMacSystemFont,"Arial",sans-serif}
+
+header{padding:28px 22px 16px;background:#ffe8f1;border-radius:0 0 28px 28px}
+
+h1{color:#d66d99;font-size:29px;margin:0}
+
+.sub{color:#a8798f;font-size:12px;margin-top:7px}
+
+main{padding:18px 16px 95px;max-width:550px;margin:auto}
+
+.card{background:white;border:1px solid #f8e3ec;border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 4px 14px #e8b8ca18}
+
+h2{font-size:16px;margin:0 0 13px;color:#bd6b8e}
+
+.big{font-size:29px;font-weight:750;color:#d66d99}
+
+small{color:#a58b98}
+
+button{border:0;border-radius:13px;padding:12px 15px;background:#f5c3d7;color:#804c64;font-weight:bold;cursor:pointer}
+
+button.active{background:#d66d99;color:white}
+
+input,select,textarea{width:100%;padding:12px;border:1px solid #f0d7e2;border-radius:12px;margin:5px 0 10px;background:#fffafd;color:#55434d;font:inherit}
+
+textarea{min-height:75px;resize:vertical}
+
+.row{display:flex;gap:8px;align-items:center}
+
+.row>*{flex:1}
+
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #f4dce6;display:flex;justify-content:space-around;padding:10px 3px calc(10px + env(safe-area-inset-bottom));z-index:5}
+
+nav button{background:transparent;padding:8px 5px;font-size:11px}
+
+nav button.active{background:#fff0f6;color:#cb6692}
+
+.page{display:none}.page.active{display:block}
+
+.task{padding:11px 0;border-bottom:1px solid #f8eaf0}
+
+.done{text-decoration:line-through;color:#b9a8b0}
+
+.pinkline{height:10px;background:#f9e6ee;border-radius:20px;overflow:hidden}
+
+.pinkline div{height:100%;background:#df8eb0;width:0%;transition:.3s}
+
+.timer{text-align:center;padding:15px}
+
+.timer .big{font-size:49px}
+
+.subject{display:inline-block;background:#fff0f6;border-radius:9px;padding:5px 9px;color:#bf7193;font-size:12px}
+
+.center{text-align:center}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+ <h1>🎀 STUDY DAY</h1>
+
+ <div class="sub">오늘도 차근차근, 나만의 공부 기록</div>
+
+</header>
+
+<main>
+
+<section id="home" class="page active">
+
+ <div class="card">
+
+  <small id="today"></small>
+
+  <h2 style="margin-top:12px">오늘도 열심히 해보자! 🌷</h2>
+
+  <div class="big" id="homeTime">00:00:00</div>
+
+  <small>누적 공부 시간</small>
+
+ </div>
+
+ <div class="card">
+
+  <h2>🎯 오늘의 공부 목표</h2>
+
+  <input id="goal" placeholder="오늘의 목표를 입력해 줘">
+
+  <button onclick="saveGoal()">목표 저장</button>
+
+  <p id="goalText" style="color:#c66f96"></p>
+
+  <div class="pinkline"><div id="progress"></div></div>
+
+  <small id="progressText">목표 달성 0%</small>
+
+ </div>
+
+ <div class="card">
+
+  <h2>📚 오늘의 공부 기록</h2>
+
+  <div id="homeLogs"><small>아직 기록이 없어! 첫 공부를 시작해 봐.</small></div>
+
+ </div>
+
+ <div class="card">
+
+  <h2>✨ 바로가기</h2>
+
+  <div class="row">
+
+   <button onclick="show('timer')">⏱️ 타이머</button>
+
+   <button onclick="show('planner')">📅 시간표</button>
+
+  </div>
+
+ </div>
+
+</section>
+
+<section id="timer" class="page">
+
+ <div class="card timer">
+
+  <h2>⏱️ 집중 타이머</h2>
+
+  <div class="big" id="clock">25:00</div>
+
+  <small id="timerStatus">집중할 준비가 됐어?</small>
+
+  <p>
+
+   <button onclick="setTimer(25)">25분</button>
+
+   <button onclick="setTimer(50)">50분</button>
+
+   <button onclick="setTimer(60)">60분</button>
+
+  </p>
+
+  <div class="row">
+
+   <button class="active" onclick="startTimer()">시작</button>
+
+   <button onclick="pauseTimer()">일시정지</button>
+
+   <button onclick="resetTimer()">초기화</button>
+
+  </div>
+
+ </div>
+
+ <div class="card">
+
+  <h2>📖 공부 과목</h2>
+
+  <select id="timerSubject">
+
+   <option>국어</option><option>수학</option><option>영어</option>
+
+   <option>과학</option><option>사회</option><option>기타</option>
+
+  </select>
+
+  <small>타이머가 끝나면 공부 기록에 자동 추가돼!</small>
+
+ </div>
+
+</section>
+
+<section id="record" class="page">
+
+ <div class="card">
+
+  <h2>📝 공부 기록 추가</h2>
+
+  <label>과목</label>
+
+  <select id="subject">
+
+   <option>국어</option><option>수학</option><option>영어</option>
+
+   <option>과학</option><option>사회</option><option>기타</option>
+
+  </select>
+
+  <label>공부 시간 (분)</label>
+
+  <input id="minutes" type="number" min="1" placeholder="예: 40">
+
+  <label>공부 내용</label>
+
+  <textarea id="memo" placeholder="오늘 무엇을 공부했나요?"></textarea>
+
+  <button onclick="addRecord()">기록 저장하기 💗</button>
+
+ </div>
+
+ <div class="card">
+
+  <h2>📚 나의 공부 기록</h2>
+
+  <div id="records"></div>
+
+ </div>
+
+</section>
+
+<section id="planner" class="page">
+
+ <div class="card">
+
+  <h2>📅 나의 시간표</h2>
+
+  <label>요일</label>
+
+  <select id="day">
+
+   <option>월요일</option><option>화요일</option><option>수요일</option>
+
+   <option>목요일</option><option>금요일</option><option>토요일</option><option>일요일</option>
+
+  </select>
+
+  <label>시간</label>
+
+  <input id="slotTime" type="time" value="16:00">
+
+  <label>과목 / 일정</label>
+
+  <input id="slotName" placeholder="예: 수학 문제 풀이">
+
+  <button onclick="addSlot()">일정 추가</button>
+
+ </div>
+
+ <div class="card">
+
+  <h2>🌸 주간 시간표</h2>
+
+  <div id="schedule"></div>
+
+ </div>
+
+ <div class="card">
+
+  <h2>☑️ 오늘의 할 일</h2>
+
+  <input id="todoInput" placeholder="할 일을 입력해 줘">
+
+  <button onclick="addTodo()">할 일 추가</button>
+
+  <div id="todos"></div>
+
+ </div>
+
+</section>
+
+<section id="stats" class="page">
+
+ <div class="card">
+
+  <h2>📊 나의 공부 통계</h2>
+
+  <div class="big" id="totalTime">0분</div>
+
+  <small>전체 누적 공부 시간</small>
+
+  <hr style="border:0;border-top:1px solid #f8e5ed;margin:18px 0">
+
+  <div id="subjectStats"></div>
+
+ </div>
+
+ <div class="card">
+
+  <h2>🏆 나의 공부 랭킹</h2>
+
+  <p>이번 주 나의 공부 시간 순위</p>
+
+  <div id="ranking"></div>
+
+  <small>현재는 내 기록을 기준으로 한 개인 랭킹이야.</small>
+
+ </div>
+
+ <div class="card">
+
+  <h2>🌷 출석 체크</h2>
+
+  <button onclick="attendance()">오늘 출석하기</button>
+
+  <p id="attendanceText"></p>
+
+ </div>
+
+</section>
+
+<section id="notes" class="page">
+
+ <div class="card">
+
+  <h2>📒 나만의 오답노트</h2>
+
+  <input id="wrongSubject" placeholder="과목">
+
+  <textarea id="wrongQuestion" placeholder="틀린 문제 또는 헷갈린 개념"></textarea>
+
+  <textarea id="wrongAnswer" placeholder="정답과 풀이"></textarea>
+
+  <button onclick="addWrong()">오답 저장하기</button>
+
+ </div>
+
+ <div class="card">
+
+  <h2>💡 저장한 오답</h2>
+
+  <div id="wrongList"></div>
+
+ </div>
+
+</section>
+
+</main>
+
+<nav>
+
+ <button class="active" data-page="home" onclick="show('home')">🏠<br>홈</button>
+
+ <button data-page="timer" onclick="show('timer')">⏱️<br>타이머</button>
+
+ <button data-page="record" onclick="show('record')">📝<br>기록</button>
+
+ <button data-page="planner" onclick="show('planner')">📅<br>플래너</button>
+
+ <button data-page="stats" onclick="show('stats')">📊<br>통계</button>
+
+ <button data-page="notes" onclick="show('notes')">📒<br>오답노트</button>
+
+</nav>
+
+<script>
+
+const $=id=>document.getElementById(id);
+
+const load=(key,def)=>JSON.parse(localStorage.getItem(key)||JSON.stringify(def));
+
+const save=(key,val)=>localStorage.setItem(key,JSON.stringify(val));
+
+let logs=load('sd_logs',[]), slots=load('sd_slots',[]),
+
+todos=load('sd_todos',[]), wrong=load('sd_wrong',[]),
+
+attendanceDays=load('sd_attendance',[]);
+
+let seconds=1500, interval=null, running=false;
+
+function show(page){
+
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+
+ $(page).classList.add('active');
+
+ document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+
+ render();
+
+}
+
+function todayKey(){return new Date().toLocaleDateString('sv-SE')}
+
+$('today').textContent=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+
+function todayLogs(){return logs.filter(x=>x.date===todayKey())}
+
+function format(n){return String(n).padStart(2,'0')}
+
+function duration(min){
+
+ let s=min*60;return format(Math.floor(s/3600))+':'+format(Math.floor(s%3600/60))+':'+format(s%60)
+
+}
+
+function updateHome(){
+
+ let total=todayLogs().reduce((a,b)=>a+b.minutes,0);
+
+ $('homeTime').textContent=duration(total);
+
+ $('homeLogs').innerHTML=todayLogs().map(x=>`<div class="task"><b>${x.subject}</b> · ${x.minutes}분<br><small>${escapeHTML(x.memo)}</small></div>`).join('')||'<small>아직 기록이 없어!</small>';
+
+ let goal=Number(load('sd_goal',0));
+
+ $('goalText').textContent=goal?'오늘 목표: '+goal+'분':'목표를 설정해 줘!';
+
+ let percent=goal?Math.min(100,Math.round(total/goal*100)):0;
+
+ $('progress').style.width=percent+'%';
+
+ $('progressText').textContent='목표 달성 '+percent+'% ('+total+'/'+goal+'분)';
+
+}
+
+function saveGoal(){
+
+ let v=Number($('goal').value);
+
+ if(v<=0)return alert('목표 시간을 입력해 줘!');
+
+ save('sd_goal',v);updateHome();
+
+}
+
+function addRecord(subject=$('subject').value,minutes=Number($('minutes').value),memo=$('memo').value){
+
+ if(!Number.isFinite(minutes)||minutes<=0)return alert('공부 시간을 입력해 줘!');
+
+ logs.push({subject,minutes:Math.floor(minutes),memo,date:todayKey()});
+
+ save('sd_logs',logs);$('minutes').value='';$('memo').value='';render();
+
+}
+
+function setTimer(m){pauseTimer();seconds=m*60;updateClock()}
+
+function updateClock(){
+
+ $('clock').textContent=format(Math.floor(seconds/60))+':'+format(seconds%60);
+
+}
+
+function startTimer(){
+
+ if(running)return;
+
+ running=true;$('timerStatus').textContent='집중하는 중! 파이팅 🌸';
+
+ interval=setInterval(()=>{
+
+  seconds--;updateClock();
+
+  if(seconds<=0){
+
+   pauseTimer();$('timerStatus').textContent='집중 시간 완료! 잘했어 💗';
+
+   addRecord($('timerSubject').value,Number($('clockMinutes')?.value||25),'집중 타이머 완료');
+
+   alert('집중 시간 완료! 공부 기록에 저장했어.');
+
+  }
+
+ },1000);
+
+}
+
+function pauseTimer(){clearInterval(interval);running=false}
+
+function resetTimer(){pauseTimer();seconds=1500;updateClock();$('timerStatus').textContent='다시 시작할 준비 완료!'}
+
+function addSlot(){
+
+ let name=$('slotName').value.trim();if(!name)return;
+
+ slots.push({day:$('day').value,time:$('slotTime').value,name});
+
+ save('sd_slots',slots);$('slotName').value='';render();
+
+}
+
+function addTodo(){
+
+ let t=$('todoInput').value.trim();if(!t)return;
+
+ todos.push({text:t,done:false});save('sd_todos',todos);$('todoInput').value='';render();
+
+}
+
+function addWrong(){
+
+ let q=$('wrongQuestion').value.trim(),a=$('wrongAnswer').value.trim();
+
+ if(!q||!a)return alert('문제와 풀이를 입력해 줘!');
+
+ wrong.push({subject:$('wrongSubject').value||'기타',q,a});
+
+ save('sd_wrong',wrong);$('wrongQuestion').value='';$('wrongAnswer').value='';render();
+
+}
+
+function attendance(){
+
+ if(!attendanceDays.includes(todayKey()))attendanceDays.push(todayKey());
+
+ save('sd_attendance',attendanceDays);render();
+
+}
+
+function escapeHTML(s){
+
+ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+}
+
+function render(){
+
+ updateHome();
+
+ $('records').innerHTML=logs.slice().reverse().map(x=>`<div class="task"><span class="subject">${escapeHTML(x.subject)}</span> <b>${x.minutes}분</b><br><small>${x.date} · ${escapeHTML(x.memo)}</small></div>`).join('')||'<small>아직 기록이 없어.</small>';
+
+ let days=['월요일','화요일','수요일','목요일','금요일','토요일','일요일'];
+
+ $('schedule').innerHTML=days.map(d=>`<div class="task"><b>${d}</b><br>${slots.filter(x=>x.day===d).sort((a,b)=>a.time.localeCompare(b.time)).map(x=>x.time+' · '+escapeHTML(x.name)).join('<br>')||'<small>일정 없음</small>'}</div>`).join('');
+
+ $('todos').innerHTML=todos.map((t,i)=>`<div class="task"><label><input type="checkbox" style="width:auto" ${t.done?'checked':''} onchange="todos[${i}].done=this.checked;save('sd_todos',todos);render()"> <span class="${t.done?'done':''}">${escapeHTML(t.text)}</span></label></div>`).join('');
+
+ $('wrongList').innerHTML=wrong.map(x=>`<div class="task"><b>${escapeHTML(x.subject)}</b><p>${escapeHTML(x.q)}</p><small>풀이: ${escapeHTML(x.a)}</small></div>`).join('')||'<small>아직 저장된 오답이 없어.</small>';
+
+ let total=logs.reduce((a,b)=>a+b.minutes,0);
+
+ $('totalTime').textContent=Math.floor(total/60)+'시간 '+total%60+'분';
+
+ let subjects={};logs.forEach(x=>subjects[x.subject]=(subjects[x.subject]||0)+x.minutes);
+
+ $('subjectStats').innerHTML=Object.entries(subjects).sort((a,b)=>b[1]-a[1]).map(([s,m])=>`<div class="task"><b>${escapeHTML(s)}</b><div class="pinkline"><div style="width:${total?m/total*100:0}%"></div></div><small>${m}분</small></div>`).join('')||'<small>공부 기록을 추가하면 통계가 보여!</small>';
+
+ let weekly=logs.filter(x=>{let d=new Date(x.date+'T12:00:00'),now=new Date();let start=new Date(now);start.setDate(now.getDate()-6);return d>=start&&d<=now}).reduce((a,b)=>a+b.minutes,0);
+
+ $('ranking').innerHTML=`<div class="task">🥇 나 · ${weekly}분</div>`;
+
+ $('attendanceText').textContent='누적 출석 '+attendanceDays.length+'일'+(attendanceDays.includes(todayKey())?' · 오늘 출석 완료!':'');
+
+}
+
+render();updateClock();
+
+</script>
+
+</body>
+
+</html>
